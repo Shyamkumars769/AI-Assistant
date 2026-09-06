@@ -1,40 +1,34 @@
 @echo off
-title MYRAA AI Assistant - One-Click Launcher
+title MYRAA AI Assistant
 color 0A
 
 echo.
-echo ╔═════════════════════════════════════════════════════════════
-echo ║          MYRAA AI Assistant - One-Click Launcher           ║
-echo ║                                                              ║
-echo ║  Starting gemini-web2api proxy (FREE Gemini chat)...        ║
-echo ║  This provides Gemini chat without API key requirement.     ║
-echo ║                                                              ║
-echo ╚═════════════════════════════════════════════════════════════
+echo ============================================
+echo   MYRAA AI Assistant - One-Click Launcher
+echo ============================================
 echo.
 
-:: Step 1: Start the proxy server in background
-echo.
-echo ➀ Starting proxy server...
-cd /d "C:\Users\admin\Documents\gemini-web2api"
-start "MYRAA_Proxy" cmd /c "python gemini_web2api.py --port 8081"
-timeout /t 3 /nobreak >nul
+:: Step 1: Check if gemini-web2api is running
+echo [1/3] Checking proxy server...
+curl -s http://localhost:8081/v1/models >nul 2>&1
+if %errorlevel% neq 0 (
+    echo       Proxy not running. Starting it now...
+    start "MYRAA_Proxy" cmd /c "cd /d "%~dp0..\..\gemini-web2api" && python gemini_web2api.py --port 8081"
+    timeout /t 3 /nobreak >nul
+)
 
-:: Step 2: Set the environment variable
-echo.
-echo ➁ Setting GEMINI_WEB2API environment variable...
+:: Step 2: Set environment variable
+echo [2/3] Setting environment...
 set GEMINI_WEB2API=http://localhost:8081
+
+:: Step 3: Start MYRAA
+echo [3/3] Starting MYRAA...
+echo.
+echo ============================================
+echo   Open http://localhost:3000 in your browser
+echo   Close this window to stop MYRAA.
+echo ============================================
 echo.
 
-:: Step 3: Launch MYRAA
-echo.
-echo ➂ Launching MYRAA AI Assistant...
-echo.
-start "" "C:\Users\admin\Documents\MYRAA\MYRAA-Portable-1.0.0.exe"
-timeout /t 5 /nobreak >nul
-
-echo.
-echo ➃ MYRAA is starting! A chat window should appear shortly.
-echo.
-echo ➄ To exit: Close the MYRAA window, then close this window
-echo.
-pause
+cd /d "%~dp0.."
+npm run dev

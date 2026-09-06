@@ -1,34 +1,45 @@
 @echo off
-title MYRAA AI Assistant - Proxy Mode (Free Gemini Chat)
+title MYRAA - Free Proxy Mode
 color 0A
 
 echo.
-echo %SYSTEMROOT%\system32\chcp.com 65001 >nul
+echo ============================================
+echo   MYRAA AI Assistant - Free Proxy Mode
+echo ============================================
 echo.
 
-:: Step 1: Ensure proxy is running
-echo %SYSTEMROOT%\system32\tasklist "gemini_web2api.exe" >nul 2>&1
+:: Step 1: Check if gemini-web2api is running
+echo [1/3] Checking proxy server...
+curl -s http://localhost:8081/v1/models >nul 2>&1
 if %errorlevel% neq 0 (
-    echo %SYSTEMROOT%\system32\start "MYRAA_Proxy" /B /MIN cmd /c "cd C:\Users\admin\Documents\gemini-web2api && python gemini_web2api.py --port 8081"
+    echo       Proxy not running. Starting it now...
+    start "MYRAA_Proxy" cmd /c "cd /d "%~dp0..\..\gemini-web2api" && python gemini_web2api.py --port 8081"
     timeout /t 3 /nobreak >nul
+    curl -s http://localhost:8081/v1/models >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo       ERROR: Proxy failed to start.
+        echo       Make sure gemini-web2api is cloned next to this folder.
+        echo       Git clone: git clone https://github.com/Sophomoresty/gemini-web2api.git
+        pause
+        exit /b 1
+    )
 )
+echo       Proxy is running on port 8081.
 
 :: Step 2: Set environment variable
-echo %SYSTEMROOT%\system32\set "GEMINI_WEB2API=http://localhost:8081" >nul
-set "GEMINI_WEB2API=http://localhost:8081"
-
-:: Step 3: Launch MYRAA (hidden console - no command prompt)
-echo %SYSTEMROOT%\system32\start "" /B "C:\Users\admin\Documents\MYRAA\MYRAA-Portable-1.0.0.exe" >nul
-timeout /t 5 /nobreak >nul
-
 echo.
-echo %SYSTEMROOT%\system32 echo.
-echo ➀ MYRAA is launching with FREE Gemini chat mode...
-echo %SYSTEMROOT%\system32 echo.
-echo ➁ Proxy mode active - chat via free gateway
-echo %SYSTEMROOT%\system32 echo.
-echo ➂ Memory preserved from previous sessions
-echo %SYSTEMROOT%\system32 echo.
-echo ➃ To toggle to Direct mode, run: Launch-MYRAA-Direct.bat
+echo [2/3] Setting GEMINI_WEB2API environment variable...
+set GEMINI_WEB2API=http://localhost:8081
+
+:: Step 3: Start MYRAA
 echo.
-echo %SYSTEMROOT%\system32 pause >nul
+echo [3/3] Starting MYRAA...
+echo.
+echo ============================================
+echo   MYRAA is starting at http://localhost:3000
+echo   Close this window to stop MYRAA.
+echo ============================================
+echo.
+
+cd /d "%~dp0.."
+npm run dev

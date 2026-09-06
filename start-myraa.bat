@@ -1,9 +1,7 @@
 @echo off
-chcp 65001 >nul
 title MYRAA Launcher
 color 0B
 
-set "PYTHON_EXE=C:\Users\MSI\AppData\Local\Programs\Python\Python311\python.exe"
 set "PROJECT_DIR=%~dp0"
 
 echo ============================================================
@@ -25,7 +23,7 @@ echo     Done.
 echo.
 
 echo [2/4] Starting Desktop Control Agent ^(Python, port 8765^)...
-start "MYRAA Desktop Agent" /MIN cmd /k "cd /d "%PROJECT_DIR%" && "%PYTHON_EXE%" -m uvicorn desktop_agent.main:app --host 127.0.0.1 --port 8765"
+start "MYRAA Desktop Agent" /MIN cmd /k "cd /d "%PROJECT_DIR%desktop_agent" && python -m uvicorn main:app --host 127.0.0.1 --port 8765"
 echo     Launching in background window...
 echo.
 
@@ -55,7 +53,6 @@ echo   MYRAA UI      : http://localhost:3000
 echo ============================================================
 echo.
 echo   Close this window to stop MYRAA.
-echo   ^(Desktop Agent runs in its own minimized window.\)
 echo.
 
 cd /d "%PROJECT_DIR%"
